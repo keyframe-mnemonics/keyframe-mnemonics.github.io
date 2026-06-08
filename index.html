@@ -1,10 +1,1840 @@
 <!doctype html>
-<html>
-  <head>
-    <title>keyframe-mnemonics</title>
-  </head>
-  <body>
-    <h1>Self-Supervised Keyframe Discovery for
-Horizon-Invariant Behavior Cloning</h1>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Self-Supervised Keyframe Discovery for Horizon-Invariant Behavior Cloning">
+  <title>Keyframe Mnemonics</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23fff' stroke='%23bac8bc' stroke-width='3'/%3E%3Crect x='16' y='16' width='14' height='14' rx='4' fill='%23d9e2dd'/%3E%3Crect x='34' y='16' width='14' height='14' rx='4' fill='%23f49a2f'/%3E%3Crect x='16' y='34' width='14' height='14' rx='4' fill='%23f49a2f'/%3E%3Crect x='34' y='34' width='14' height='14' rx='4' fill='%23d9e2dd'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]]
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink: #18211d;
+      --muted: #65716b;
+      --soft: #f6f8f4;
+      --paper: #ffffff;
+      --line: #dfe6dc;
+      --line-strong: #bac8bc;
+      --orange: #f49a2f;
+      --orange-dark: #bd6514;
+      --teal: #178f80;
+      --teal-dark: #0f5f56;
+      --review-red: #d7192f;
+      --shadow: 0 18px 55px rgba(24, 33, 29, 0.12);
+      --radius: 8px;
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 64px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(223, 230, 220, 0.5) 1px, transparent 1px) 0 0 / 72px 72px,
+        linear-gradient(0deg, rgba(223, 230, 220, 0.4) 1px, transparent 1px) 0 0 / 72px 72px,
+        var(--soft);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img,
+    video,
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .site-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(186, 200, 188, 0.78);
+      background: rgba(246, 248, 244, 0.88);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 8px 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--paper);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3px;
+      padding: 5px;
+      box-shadow: 0 8px 22px rgba(24, 33, 29, 0.08);
+    }
+
+    .brand-mark span {
+      border-radius: 3px;
+      background: #d9e2dd;
+    }
+
+    .brand-mark span:nth-child(2),
+    .brand-mark span:nth-child(3) {
+      background: var(--orange);
+    }
+
+    .progress-rail {
+      position: fixed;
+      left: max(18px, calc((100vw - 1320px) / 2));
+      top: 112px;
+      z-index: 10;
+      display: none;
+      width: 184px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .progress-rail::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 9px;
+      bottom: 9px;
+      width: 2px;
+      background: var(--line-strong);
+    }
+
+    .progress-rail a {
+      position: relative;
+      display: block;
+      padding: 8px 0 8px 32px;
+      line-height: 1.25;
+      transition: color 160ms ease;
+    }
+
+    .progress-rail a::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 50%;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1px solid var(--line-strong);
+      background: var(--soft);
+      transform: translateY(-50%);
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .progress-rail a.active {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .progress-rail a.active::before {
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .hero {
+      padding: 18px 0 38px;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 6px 11px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hero-kicker i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--review-red);
+      box-shadow: 0 0 0 0 rgba(215, 25, 47, 0.34);
+      animation: reviewPulse 1s ease-out infinite;
+    }
+
+    @keyframes reviewPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(215, 25, 47, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 7px rgba(215, 25, 47, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(215, 25, 47, 0);
+      }
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      line-height: 1.02;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 0;
+      max-width: 1040px;
+      font-size: 50px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+
+    h1 .title-line {
+      display: block;
+    }
+
+    .subtitle {
+      max-width: 840px;
+      margin: 8px 0 0;
+      color: #42504a;
+      font-size: 17px;
+      line-height: 1.45;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .hero-actions .hero-kicker {
+      min-height: 42px;
+      padding: 9px 14px;
+      background: var(--paper);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 9px 15px;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 8px 22px rgba(24, 33, 29, 0.08);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: #9aa99b;
+      box-shadow: 0 12px 28px rgba(24, 33, 29, 0.12);
+    }
+
+    .btn.primary {
+      border-color: #166f66;
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .btn.disabled {
+      cursor: default;
+      color: #8a958e;
+      box-shadow: none;
+    }
+
+    .btn.disabled:hover {
+      transform: none;
+      border-color: var(--line-strong);
+      box-shadow: none;
+    }
+
+    .btn i {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+    }
+
+    .hero-media {
+      max-width: 880px;
+      margin-top: 18px;
+    }
+
+    .video-frame {
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .video-frame video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #eef3ef;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .hero-video-frame {
+      position: relative;
+      aspect-ratio: 16 / 8.2;
+    }
+
+    .hero-video-frame video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateY(-5%);
+    }
+
+    .caption {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .section {
+      padding: 72px 0;
+    }
+
+    .section-header {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+      gap: 36px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      color: var(--orange-dark);
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-top: 8px;
+      font-size: 52px;
+    }
+
+    h3 {
+      font-size: 21px;
+      line-height: 1.2;
+    }
+
+    .section-copy {
+      margin: 0;
+      color: #4a5751;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .lede {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .lede p {
+      margin: 0 0 18px;
+      color: #405049;
+      font-size: 18px;
+    }
+
+    .callout-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      width: min(100%, 500px);
+      max-width: 500px;
+      margin: 26px auto 0 0;
+    }
+
+    .callout,
+    .stage-card,
+    .horizon-card,
+    .horizon-note-card {
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 36px rgba(24, 33, 29, 0.08);
+    }
+
+    .callout {
+      position: relative;
+      min-height: 92px;
+      overflow: visible;
+      padding: 12px 11px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 6px;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0;
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 27px;
+      line-height: 0.95;
+      white-space: nowrap;
+    }
+
+    .callout:nth-child(4) strong {
+      font-size: 24px;
+    }
+
+    .callout span {
+      color: var(--muted);
+      font-size: 9.5px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .callout .highlight-green {
+      color: var(--teal);
+    }
+
+    .metric-footnote {
+      width: min(100%, 500px);
+      margin: 3px auto 0 0;
+      color: #7b8780;
+      font-size: 9px;
+      line-height: 1.25;
+    }
+
+    .metric-footnote sup {
+      font-size: 8px;
+    }
+
+    .memory-demo {
+      padding: 12px 22px 22px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .token {
+      position: relative;
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid #cfd9d0;
+      border-radius: 6px;
+      background: #edf2ee;
+      color: #4f5c56;
+      font-family: "Fira Code", monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .token.key {
+      border-color: #df8a28;
+      background: #f9b45b;
+      color: #5c3906;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.42);
+    }
+
+    .token.now {
+      border-color: #63a7e8;
+      background: #d9ecff;
+      color: #184f80;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.52);
+    }
+
+    .buffer-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .buffer-label .hint {
+      color: #79857f;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: none;
+    }
+
+    .buffer {
+      display: grid;
+      grid-template-columns: minmax(78px, 0.72fr) repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      border: 1px dashed #c7d3ca;
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fbfcfa;
+    }
+
+    .buffer-symbol {
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-family: "Fira Code", monospace;
+      font-size: 16px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .buffer .slot {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid #d7e0d8;
+      border-radius: 6px;
+      background: #f1f5f1;
+      color: #54605a;
+      font-family: "Fira Code", monospace;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .buffer .slot.filled {
+      border-color: #df8a28;
+      background: #f9b45b;
+      color: #5c3906;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.42);
+    }
+
+    .buffer .slot.empty {
+      border-style: dashed;
+      background: #f7faf7;
+      color: #87928c;
+      font-family: Inter, sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .policy-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr) 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      margin-top: 18px;
+      color: var(--muted);
+      font-family: "Fira Code", monospace;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .policy-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+      height: 54px;
+      border: 1px solid #cfd9d0;
+      border-radius: 6px;
+      background: #fff;
+      padding: 7px 10px;
+      text-align: center;
+      white-space: normal;
+      line-height: 1.05;
+    }
+
+    .chip-label {
+      color: #6b766f;
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .chip-math {
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .policy-chip mjx-container {
+      margin: 0;
+      overflow: visible;
+      text-align: center;
+    }
+
+    .policy-chip.now {
+      border-color: #63a7e8;
+      background: #d9ecff;
+      color: #184f80;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.52);
+    }
+
+    .policy-chip.now .chip-label,
+    .policy-chip.now .chip-math {
+      color: #184f80;
+    }
+
+    .arrow {
+      color: var(--teal-dark);
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .stage-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .stage-card {
+      max-width: 880px;
+      overflow: hidden;
+    }
+
+    .stage-video {
+      position: relative;
+      aspect-ratio: 1920 / 880;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .stage-video video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #fff;
+      object-fit: cover;
+      pointer-events: none;
+      transform: translateY(-10%);
+    }
+
+    .stage-video-stage3 video {
+      transform: translateY(-8.8%);
+    }
+
+    .stage-video-stage12 video {
+      transform: translateY(-6%);
+    }
+
+    .stage-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 18px 20px;
+    }
+
+    .stage-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2px;
+      color: var(--ink);
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .stage-kicker span {
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #e3f2ed;
+      color: var(--teal-dark);
+      font-family: Inter, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .stage-body p {
+      margin: 0;
+      color: #51605a;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .MathJax,
+    mjx-container {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .results-subsection {
+      margin-top: 24px;
+    }
+
+    .results-subsection + .results-subsection {
+      margin-top: 38px;
+    }
+
+    .subsection-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .subsection-heading h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 25px;
+      line-height: 1.1;
+    }
+
+    .subsection-heading p {
+      max-width: 740px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .horizon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .horizon-card,
+    .horizon-note-card {
+      padding: 13px;
+    }
+
+    .horizon-card-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .horizon-card-header h4,
+    .horizon-note-card h4 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.15;
+    }
+
+    .horizon-card-header p,
+    .horizon-note-card p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .chart-badges {
+      display: inline-flex;
+      flex: 0 0 auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
+      max-width: 120px;
+    }
+
+    .train-pill {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .train-pill {
+      border: 1px solid #d4dfd7;
+      background: #f6faf7;
+      color: #5d6963;
+    }
+
+    .mini-chart-holder {
+      position: relative;
+      width: 100%;
+      height: 224px;
+    }
+
+    .horizon-note-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 282px;
+      background: rgba(246, 250, 247, 0.86);
+    }
+
+    .horizon-note-card.extreme-note {
+      border-color: #a7d7ce;
+      background:
+        linear-gradient(180deg, rgba(237, 250, 246, 0.96), rgba(255, 255, 255, 0.9));
+      box-shadow: 0 14px 38px rgba(23, 143, 128, 0.12);
+    }
+
+    .horizon-note-card.extreme-note h4 {
+      color: var(--teal-dark);
+    }
+
+    .horizon-note-card ul {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      color: #50605a;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .horizon-note-card li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .horizon-note-card li::before {
+      content: "";
+      position: absolute;
+      top: 0.55em;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--teal);
+    }
+
+    .horizon-note-card.extreme-note li::before {
+      background: var(--teal);
+    }
+
+    .footer {
+      padding: 36px 0 54px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 520ms ease, transform 520ms ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (min-width: 1250px) {
+      .progress-rail {
+        display: block;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        padding-top: 24px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      h2 {
+        font-size: 42px;
+      }
+
+      .section {
+        padding: 54px 0;
+      }
+
+      .section-header,
+      .lede {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .callout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-body {
+        gap: 10px;
+      }
+
+      .subsection-heading {
+        display: block;
+      }
+
+      .horizon-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mini-chart-holder {
+        height: 218px;
+      }
+
+      .horizon-note-card {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        padding: 0 14px;
+      }
+
+      .topbar-inner {
+        padding-inline: 14px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      .subtitle,
+      .lede p,
+      .section-copy {
+        font-size: 16px;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .hero-actions .hero-kicker {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .policy-row {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        text-align: center;
+        transform: rotate(90deg);
+      }
+
+      .horizon-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .horizon-card,
+      .horizon-note-card {
+        padding: 12px;
+      }
+
+      .mini-chart-holder {
+        height: 230px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-kicker i {
+        animation: none;
+        box-shadow: 0 0 0 4px rgba(215, 25, 47, 0.16);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top" aria-label="Keyframe Mnemonics home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span>Keyframe Mnemonics</span>
+        </a>
+      </div>
+    </header>
+
+    <nav class="progress-rail" aria-label="Page progress">
+      <a href="#top">Intro</a>
+      <a href="#problem">Problem</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+    </nav>
+
+    <main id="top">
+      <section class="hero">
+        <div class="container">
+          <h1>
+            <span class="title-line">Self-Supervised Keyframe Discovery</span>
+            <span class="title-line">for Horizon-Invariant Behavior Cloning</span>
+          </h1>
+          <p class="subtitle">
+            Keyframe Mnemonics (KM) learns what a behavior cloning policy should remember: compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
+          </p>
+          <div class="hero-actions">
+            <!-- <a class="btn primary" href="mnemonic_bc.pdf" target="_blank" rel="noreferrer"><i data-lucide="file-text"></i> Paper</a> -->
+            <a class="btn primary" href="#results"><i data-lucide="bar-chart-3"></i> Goto Results</a>
+            <span class="btn disabled" aria-disabled="true"><i data-lucide="code-2"></i> Code coming soon</span>
+            <span class="hero-kicker"><i aria-hidden="true"></i> Under Review</span>
+            <!-- <a class="btn" href="#bibtex"><i data-lucide="quote"></i> BibTeX</a> -->
+          </div>
+
+          <div class="hero-media">
+            <div class="video-frame hero-video-frame">
+              <video autoplay muted loop playsinline preload="auto" poster="assets/posters/inference_pipeline.jpg" aria-label="Inference overview animation">
+                <source src="videos/inference_pipeline.mp4" type="video/mp4">
+              </video>
+            </div>
+            <p class="caption"><strong>Method overview.</strong> A selector assigns priorities to incoming observations, stores decision-critical keyframes in a buffer, and conditions the BC policy on this compact memory along with the current observation to predict actions.</p>
+            <div class="callout-grid">
+              <div class="callout">
+                <strong>&infin;</strong>
+                <span>horizon memory retention guarantee<sup>1</sup></span>
+              </div>
+              <div class="callout">
+                <strong>0%</strong>
+                <span>annotation overhead, <span class="highlight-green">fully self-supervised</span></span>
+              </div>
+              <div class="callout">
+                <strong>100%</strong>
+                <span>success rate (SR) on synthetic memory tasks</span>
+              </div>
+              <div class="callout">
+                <strong>+13.9%</strong>
+                <span>avg. absolute SR over SOTA on MIKASA-Robo</span>
+              </div>
+            </div>
+            <p class="metric-footnote"><sup>1</sup> under certain task-structure assumptions</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="problem">
+        <div class="container">
+          <div class="section-header reveal">
+            <div>
+              <div class="eyebrow">Why Memory Fails</div>
+              <h2>The cue disappears. The action still depends on it.</h2>
+            </div>
+            <p class="section-copy">
+              Memory-intensive imitation in partially observable environments often fails because the key observation is no longer visible when the action is needed. Rather than expanding context windows or repeatedly compressing hidden state, KM learns to preserve the few frames that disambiguate future behavior.
+            </p>
+          </div>
+
+          <div class="lede reveal">
+            <div>
+              <p>
+                In non-Markovian behavior cloning, the current observation $o_t$ is not sufficient, and the policy must instead maintain a belief over the history $h_t$. Recurrent and attention-based models can help, but repeated updates can blur state information, and finite context windows eventually drop earlier evidence.
+              </p>
+              <p>
+                Keyframe Mnemonics turns memory into a sparse selection problem. If a small set of keyframes carries more action information than rest of the background frames, the policy can act from a fixed-size mnemonic buffer $\mathcal B_t$ instead of the full observation history.
+              </p>
+            </div>
+
+            <div class="memory-demo" aria-label="Mnemonic buffer illustration">
+              <div class="buffer-label">
+                <span>History $h_t$ at $t=8$</span>
+                <span class="hint">all observations so far</span>
+              </div>
+              <div class="timeline" aria-hidden="true">
+                <span class="token">$o_1$</span>
+                <span class="token key">$o_2$</span>
+                <span class="token">$o_3$</span>
+                <span class="token">$o_4$</span>
+                <span class="token key">$o_5$</span>
+                <span class="token">$o_6$</span>
+                <span class="token key">$o_7$</span>
+                <span class="token now">$o_t$</span>
+              </div>
+              <div class="buffer-label">
+                <span>Mnemonic buffer</span>
+                <span class="hint">selected keyframes</span>
+              </div>
+              <div class="buffer" aria-hidden="true">
+                <span class="buffer-symbol">$\mathcal B_t=$</span>
+                <span class="slot filled">$o_2$</span>
+                <span class="slot filled">$o_5$</span>
+                <span class="slot filled">$o_7$</span>
+                <span class="slot empty">empty</span>
+              </div>
+              <div class="policy-row">
+                <span class="policy-chip"><span class="chip-label">mnemonics</span><span class="chip-math">$\mathcal B_t$</span></span>
+                <span class="arrow">+</span>
+                <span class="policy-chip now"><span class="chip-label">current</span><span class="chip-math">$o_t$</span></span>
+                <span class="arrow">-&gt;</span>
+                <span class="policy-chip"><span class="chip-label">action</span><span class="chip-math">$a_t$</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="method">
+        <div class="container">
+          <div class="section-header reveal">
+            <div>
+              <div class="eyebrow">Method</div>
+              <h2>Three training stages, one compact memory.</h2>
+            </div>
+            <p class="section-copy">
+              KM first learns a proxy objective from randomly sampled past observations. A selector policy then populates a priority-queue buffer with keyframes that optimize this objective. Finally, the behavior cloning policy is trained on demonstrations augmented with the discovered keyframes, or mnemonics.
+            </p>
+          </div>
+
+          <div class="stage-grid">
+            <article class="stage-card reveal">
+              <div class="stage-video stage-video-stage12">
+                <video autoplay muted loop playsinline preload="auto" poster="assets/posters/trainingstage1_pipeline.jpg" aria-label="Proxy policy training animation">
+                  <source src="videos/trainingstage1_pipeline.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="stage-body">
+                <div class="stage-kicker"><span>1</span> Objective from randomly sampled history buffers.</div>
+                <p>Past observations are randomly sampled to build small buffers bounded by the memory budget $k$, and the proxy $f_\theta$ predicts expert actions from these buffers. We refer to this as masked-sampling training, which leverages the simplicity bias of neural networks to encourage action mappings conditioned on true keyframes while discouraging spurious shortcuts.</p>
+              </div>
+            </article>
+
+            <article class="stage-card reveal">
+              <div class="stage-video stage-video-stage12">
+                <video autoplay muted loop playsinline preload="auto" poster="assets/posters/trainingstage2_pipeline.jpg" aria-label="Selector reinforcement learning animation">
+                  <source src="videos/trainingstage2_pipeline.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="stage-body">
+                <div class="stage-kicker"><span>2</span> Utilize proxy loss as keyframe identification reward.</div>
+                <p>The frozen proxy loss scores buffer quality. A selector policy $\pi_{\mathrm s}$ emits priorities $p_t$ that determine whether each observation enters the mnemonic buffer. The selector is trained with PPO to minimize the expected proxy objective $J_{\theta^*}(\mathcal{B}_t)$, thereby identifying keyframes informative for the memory task.</p>
+              </div>
+            </article>
+
+            <article class="stage-card reveal">
+              <div class="stage-video stage-video-stage3">
+                <video autoplay muted loop playsinline preload="auto" poster="assets/posters/trainingstage3_pipeline.jpg" aria-label="Behavior cloning training animation">
+                  <source src="videos/trainingstage3_pipeline.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="stage-body">
+                <div class="stage-kicker"><span>3</span> Train BC policy on mnemonic-augmented demonstrations.</div>
+                <p>A trained selector identifies decision-relevant keyframes which are used to create augmented demonstrations. Finally, the BC policy learns $\pi_{\mathrm{BC}}(a_t \mid o_t,\mathcal B_t)$, using the current observation for local control and the buffer for task context.</p>
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="results">
+        <div class="container">
+          <div class="section-header reveal">
+            <div>
+              <div class="eyebrow">Results</div>
+              <h2>Performance stays flat when the horizon grows.</h2>
+            </div>
+            <p class="section-copy">
+              Horizon-invariance of mnemonic-conditioned BC policies across synthetic memory tasks, grid domains, and MIKASA-Robo benchmark suite.
+            </p>
+          </div>
+
+          <div class="results-subsection">
+            <div class="subsection-heading reveal">
+              <div>
+                <h3>Synthetic and grid horizon scaling</h3>
+                <p>KM is plotted with the four strongest baselines for each benchmark. Shaded regions show mean +/- 1 std.</p>
+              </div>
+            </div>
+
+            <div class="horizon-grid" data-chart-group="horizon-scaling">
+              <article class="horizon-card reveal">
+                <div class="horizon-card-header">
+                  <div>
+                    <h4>Add</h4>
+                    <p>Final-step MSE $\downarrow$</p>
+                  </div>
+                  <div class="chart-badges">
+                    <span class="train-pill">train $h=30$</span>
+                  </div>
+                </div>
+                <div class="mini-chart-holder"><canvas id="addHorizonChart" aria-label="Add horizon scaling chart"></canvas></div>
+              </article>
+
+              <article class="horizon-card reveal">
+                <div class="horizon-card-header">
+                  <div>
+                    <h4>Scattered-Copy</h4>
+                    <p>Copy success rate $\uparrow$</p>
+                  </div>
+                  <div class="chart-badges">
+                    <span class="train-pill">train $h=20$</span>
+                  </div>
+                </div>
+                <div class="mini-chart-holder"><canvas id="copyHorizonChart" aria-label="Scattered-Copy horizon scaling chart"></canvas></div>
+              </article>
+
+              <article class="horizon-card reveal">
+                <div class="horizon-card-header">
+                  <div>
+                    <h4>T-Maze</h4>
+                    <p>Episode success rate $\uparrow$</p>
+                  </div>
+                  <div class="chart-badges">
+                    <span class="train-pill">train $h=30$</span>
+                  </div>
+                </div>
+                <div class="mini-chart-holder"><canvas id="tmazeHorizonChart" aria-label="T-Maze horizon scaling chart"></canvas></div>
+              </article>
+
+              <article class="horizon-card reveal">
+                <div class="horizon-card-header">
+                  <div>
+                    <h4>MiniGrid-Memory</h4>
+                    <p>Episode success rate $\uparrow$</p>
+                  </div>
+                  <div class="chart-badges">
+                    <span class="train-pill">train $h=17$</span>
+                  </div>
+                </div>
+                <div class="mini-chart-holder"><canvas id="minigridHorizonChart" aria-label="MiniGrid-Memory horizon scaling chart"></canvas></div>
+              </article>
+
+              <article class="horizon-card reveal">
+                <div class="horizon-card-header">
+                  <div>
+                    <h4>LTMB-Hallway</h4>
+                    <p>Episode success rate $\uparrow$</p>
+                  </div>
+                  <div class="chart-badges">
+                    <span class="train-pill">train $h=8$</span>
+                  </div>
+                </div>
+                <div class="mini-chart-holder"><canvas id="ltmbHorizonChart" aria-label="LTMB-Hallway horizon scaling chart"></canvas></div>
+              </article>
+
+              <aside class="horizon-note-card extreme-note reveal">
+                <div>
+                  <h4>Extreme horizon stress test</h4>
+                  <p>Additional experiments at extreme horizons for KM at $h=10^5$ and $h=10^6$ horizon lengths.</p>
+                  <ul>
+                    <li>At $h=10^5$ and $h=10^6$, KM keeps Scattered-Copy and T-Maze at $100\%$ success.</li>
+                    <li>Add stays near zero: $3.8{\times}10^{-5}$ at $h=10^5$ and $1.6{\times}10^{-5}$ at $h=10^6$.</li>
+                    <li>KM remains effective under extreme horizon conditions, as the mnemonics remain unaffected at extended horizons.</li>
+                  </ul>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        Design inspired by <a href="https://tiptop-robot.github.io/" target="_blank" rel="noreferrer">TiP-TOP</a>, <a href="https://weirdlabuw.github.io/omnireset/" target="_blank" rel="noreferrer">OmniReset</a>, and <a href="https://www.drolet.io/daps/" target="_blank" rel="noreferrer">DAPS</a>.
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function setupReveal() {
+      const items = document.querySelectorAll(".reveal");
+      if (!("IntersectionObserver" in window)) {
+        items.forEach((item) => item.classList.add("visible"));
+        return;
+      }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      items.forEach((item) => observer.observe(item));
+    }
+
+    function setupScrollSpy() {
+      const navLinks = [...document.querySelectorAll(".progress-rail a")];
+      const uniqueHrefs = [...new Set(navLinks.map((link) => link.getAttribute("href")))];
+      const targets = uniqueHrefs
+        .map((href) => ({
+          href,
+          el: href === "#top" ? document.querySelector(".hero") : document.querySelector(href)
+        }))
+        .filter((target) => target.el)
+        .sort((a, b) => a.el.offsetTop - b.el.offsetTop);
+
+      if (!targets.length) return;
+
+      let ticking = false;
+
+      function setActive(href) {
+        navLinks.forEach((link) => {
+          link.classList.toggle("active", link.getAttribute("href") === href);
+        });
+      }
+
+      function updateActiveSection() {
+        ticking = false;
+        const topbarHeight = document.querySelector(".topbar")?.offsetHeight || 0;
+        const marker = window.scrollY + topbarHeight + Math.min(window.innerHeight * 0.28, 220);
+        let current = targets[0].href;
+
+        targets.forEach((target) => {
+          if (target.el.offsetTop <= marker) current = target.href;
+        });
+
+        setActive(current);
+      }
+
+      function requestUpdate() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateActiveSection);
+      }
+
+      window.addEventListener("scroll", requestUpdate, { passive: true });
+      window.addEventListener("resize", requestUpdate);
+      updateActiveSection();
+    }
+
+    const methodColors = {
+      km: { stroke: "#178f80", band: "rgba(23, 143, 128, 0.15)" },
+      lstmB: { stroke: "#2d6fd3", band: "rgba(45, 111, 211, 0.11)" },
+      lstmT: { stroke: "#2b95bd", band: "rgba(43, 149, 189, 0.11)" },
+      dlstm: { stroke: "#7759c7", band: "rgba(119, 89, 199, 0.10)" },
+      dt: { stroke: "#e28a24", band: "rgba(226, 138, 36, 0.12)" },
+      dmamba: { stroke: "#c84f5e", band: "rgba(200, 79, 94, 0.10)" },
+      trxl: { stroke: "#b99a22", band: "rgba(185, 154, 34, 0.12)" },
+      elmur: { stroke: "#68736e", band: "rgba(104, 115, 110, 0.12)" }
+    };
+
+    function series(label, color, mean, std) {
+      return { label, color, mean, std };
+    }
+
+    const horizonChartConfigs = [
+      {
+        id: "addHorizonChart",
+        labels: ["10", "20", "30", "1K", "10K"],
+        xTitle: "horizon",
+        yTitle: "MSE",
+        metric: "mse",
+        trainIndex: 2,
+        yType: "logarithmic",
+        yMin: 1e-6,
+        yMax: 1.2,
+        series: [
+          series("KM (Ours)", "km", [3.1e-5, 2.8e-4, 7.7e-5, 3.8e-5, 3.7e-5], [3.4e-5, 5.7e-4, 1.1e-4, 4.8e-5, 4.0e-5]),
+          series("DLSTM", "dlstm", [0.258, 0.330, 0.267, 0.531, 0.218], [0.216, 0.366, 0.348, 0.455, 0.195]),
+          series("LSTM(T)", "lstmT", [3.4e-3, 6.8e-3, 1.1e-2, 0.127, 0.351], [3.5e-3, 5.6e-3, 8.3e-3, 0.027, 0.142]),
+          series("DT", "dt", [6.5e-4, 9.2e-4, 7.0e-4, 0.408, 0.447], [6.2e-4, 7.7e-4, 7.8e-4, 0.439, 0.398]),
+          series("LSTM(B)", "lstmB", [5.0e-6, 7.7e-5, 3.1e-4, 0.246, 0.494], [2.3e-6, 6.9e-5, 1.9e-4, 0.097, 0.320])
+        ]
+      },
+      {
+        id: "copyHorizonChart",
+        labels: ["10", "20", "30", "1K", "10K"],
+        xTitle: "horizon",
+        yTitle: "Copy SR",
+        metric: "sr",
+        trainIndex: 1,
+        yMin: 0,
+        yMax: 1,
+        series: [
+          series("KM (Ours)", "km", [1.000, 1.000, 1.000, 1.000, 1.000], [0, 0, 0, 0, 0]),
+          series("LSTM(T)", "lstmT", [0.080, 0.080, 0.080, 0.160, 0.040], [0.110, 0.110, 0.110, 0.167, 0.089]),
+          series("LSTM(B)", "lstmB", [0.720, 0.360, 0.360, 0.120, 0.000], [0.110, 0.167, 0.167, 0.179, 0.000]),
+          series("DT", "dt", [0.000, 0.480, 0.040, 0.000, 0.000], [0.000, 0.390, 0.089, 0.000, 0.000]),
+          series("TrXL", "trxl", [0.000, 0.040, 0.000, 0.000, 0.000], [0.000, 0.089, 0.000, 0.000, 0.000])
+        ]
+      },
+      {
+        id: "tmazeHorizonChart",
+        labels: ["10", "20", "30", "1K", "10K"],
+        xTitle: "horizon",
+        yTitle: "Episode SR",
+        metric: "sr",
+        trainIndex: 2,
+        yMin: 0,
+        yMax: 1,
+        series: [
+          series("KM (Ours)", "km", [1.000, 1.000, 1.000, 1.000, 1.000], [0, 0, 0, 0, 0]),
+          series("LSTM(B)", "lstmB", [1.000, 1.000, 1.000, 0.800, 0.840], [0, 0, 0, 0.283, 0.261]),
+          series("TrXL", "trxl", [1.000, 1.000, 1.000, 0.520, 0.440], [0, 0, 0, 0.303, 0.219]),
+          series("DMamba", "dmamba", [0.560, 0.520, 0.520, 0.360, 0.360], [0.261, 0.335, 0.228, 0.261, 0.167]),
+          series("DT", "dt", [1.000, 1.000, 1.000, 0.320, 0.320], [0, 0, 0, 0.228, 0.110])
+        ]
+      },
+      {
+        id: "minigridHorizonChart",
+        labels: ["17", "51", "101", "501", "1001"],
+        xTitle: "grid size",
+        yTitle: "Episode SR",
+        metric: "sr",
+        trainIndex: 0,
+        yMin: 0,
+        yMax: 1,
+        series: [
+          series("KM (Ours)", "km", [1.000, 1.000, 1.000, 1.000, 1.000], [0, 0, 0, 0, 0]),
+          series("DLSTM", "dlstm", [0.800, 0.533, 0.500, 0.500, 0.500], [0.000, 0.231, 0.173, 0.173, 0.173]),
+          series("LSTM(T)", "lstmT", [0.767, 0.667, 0.600, 0.500, 0.467], [0.404, 0.321, 0.265, 0.173, 0.208]),
+          series("DT", "dt", [0.333, 0.533, 0.333, 0.433, 0.433], [0.153, 0.058, 0.153, 0.231, 0.153]),
+          series("TrXL", "trxl", [0.600, 0.600, 0.500, 0.300, 0.367], [0.000, 0.000, 0.100, 0.100, 0.115])
+        ]
+      },
+      {
+        id: "ltmbHorizonChart",
+        labels: ["8", "50", "100", "500", "1000"],
+        xTitle: "hallway length",
+        yTitle: "Episode SR",
+        metric: "sr",
+        trainIndex: 0,
+        yMin: 0,
+        yMax: 1,
+        series: [
+          series("KM (Ours)", "km", [1.000, 1.000, 0.933, 0.967, 0.933], [0, 0, 0.058, 0.058, 0.058]),
+          series("DT", "dt", [0.133, 0.000, 0.000, 0.000, 0.000], [0.058, 0, 0, 0, 0]),
+          series("TrXL", "trxl", [0.100, 0.000, 0.000, 0.000, 0.000], [0, 0, 0, 0, 0]),
+          series("ELMUR", "elmur", [0.100, 0.000, 0.000, 0.000, 0.000], [0, 0, 0, 0, 0]),
+          series("LSTM(T)", "lstmT", [0.033, 0.000, 0.000, 0.000, 0.000], [0.058, 0, 0, 0, 0])
+        ]
+      }
+    ];
+
+    function clampToScale(value, scale) {
+      const min = scale.min ?? 0;
+      const max = scale.max ?? 1;
+      if (!Number.isFinite(value)) return null;
+      if (scale.type === "logarithmic") {
+        return Math.min(max, Math.max(min * 1.0001, value));
+      }
+      return Math.min(max, Math.max(min, value));
+    }
+
+    const stdBandPlugin = {
+      id: "stdBandPlugin",
+      beforeDatasetsDraw(chart) {
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        const yScale = scales.y;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+        ctx.clip();
+
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          if (!dataset.std || !chart.isDatasetVisible(datasetIndex)) return;
+
+          let segment = [];
+          const flushSegment = () => {
+            if (!segment.length) return;
+            ctx.fillStyle = dataset.bandColor;
+            if (segment.length === 1) {
+              const point = segment[0];
+              ctx.fillRect(point.x - 3, point.upper, 6, point.lower - point.upper);
+              segment = [];
+              return;
+            }
+            ctx.beginPath();
+            segment.forEach((point, index) => {
+              if (index === 0) ctx.moveTo(point.x, point.upper);
+              else ctx.lineTo(point.x, point.upper);
+            });
+            [...segment].reverse().forEach((point) => ctx.lineTo(point.x, point.lower));
+            ctx.closePath();
+            ctx.fill();
+            segment = [];
+          };
+
+          dataset.data.forEach((mean, index) => {
+            if (mean === null || mean === undefined || Number.isNaN(mean)) {
+              flushSegment();
+              return;
+            }
+            const std = dataset.std[index] ?? 0;
+            const upperValue = clampToScale(mean + std, yScale);
+            const lowerValue = clampToScale(mean - std, yScale);
+            if (upperValue === null || lowerValue === null) {
+              flushSegment();
+              return;
+            }
+            segment.push({
+              x: xScale.getPixelForValue(index),
+              upper: yScale.getPixelForValue(upperValue),
+              lower: yScale.getPixelForValue(lowerValue)
+            });
+          });
+          flushSegment();
+        });
+
+        ctx.restore();
+      }
+    };
+
+    const trainingHorizonPlugin = {
+      id: "trainingHorizon",
+      beforeDatasetsDraw(chart, _args, options) {
+        const trainIndex = options.trainIndex;
+        if (!Number.isFinite(trainIndex)) return;
+
+        const { ctx, chartArea, scales } = chart;
+        const x = scales.x.getPixelForValue(trainIndex);
+        if (!Number.isFinite(x)) return;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(15, 95, 86, 0.72)";
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
+        ctx.stroke();
+        ctx.restore();
+      }
+    };
+
+    const progressiveRevealPlugin = {
+      id: "progressiveReveal",
+      beforeDatasetsDraw(chart, _args, options) {
+        const progress = Number.isFinite(options.progress) ? Math.max(0, Math.min(1, options.progress)) : 1;
+        if (progress >= 1) return;
+
+        const { ctx, chartArea, scales } = chart;
+        const labels = chart.data.labels;
+        const maxIndex = Math.max(labels.length - 1, 1);
+        const scaledIndex = progress * maxIndex;
+        const lowIndex = Math.floor(scaledIndex);
+        const highIndex = Math.min(Math.ceil(scaledIndex), maxIndex);
+        const localProgress = scaledIndex - lowIndex;
+        const lowX = scales.x.getPixelForValue(lowIndex);
+        const highX = scales.x.getPixelForValue(highIndex);
+        const rightEdge = lowX + ((highX - lowX) * localProgress) + 8;
+
+        chart.$progressiveRevealClipped = true;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(
+          chartArea.left,
+          chartArea.top - 10,
+          Math.max(0, rightEdge - chartArea.left),
+          chartArea.bottom - chartArea.top + 18
+        );
+        ctx.clip();
+      },
+      afterDatasetsDraw(chart) {
+        if (!chart.$progressiveRevealClipped) return;
+        chart.ctx.restore();
+        chart.$progressiveRevealClipped = false;
+      }
+    };
+
+    function formatChartValue(value, metric) {
+      if (value === null || value === undefined || !Number.isFinite(value)) return "n/a";
+      if (metric === "mse") {
+        if (Math.abs(value) < 0.001 && value !== 0) return value.toExponential(1);
+        return value.toFixed(3).replace(/\.?0+$/, "");
+      }
+      return value.toFixed(3);
+    }
+
+    function horizonChartOptions(config) {
+      const isMse = config.metric === "mse";
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        spanGaps: false,
+        animation: false,
+        layout: {
+          padding: { top: 8 }
+        },
+        plugins: {
+          progressiveReveal: {
+            progress: prefersReduced ? 1 : 0
+          },
+          trainingHorizon: {
+            trainIndex: config.trainIndex
+          },
+          legend: {
+            position: "bottom",
+            labels: {
+              usePointStyle: true,
+              boxWidth: 6,
+              padding: 8,
+              color: "#42504a",
+              font: { family: "Inter", size: 10, weight: 700 }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const std = context.dataset.std?.[context.dataIndex] ?? 0;
+                return `${context.dataset.label}: ${formatChartValue(context.parsed.y, context.dataset.metric)} +/- ${formatChartValue(std, context.dataset.metric)}`;
+              }
+            },
+            backgroundColor: "#18211d",
+            titleColor: "#ffffff",
+            bodyColor: "#ffffff",
+            padding: 10,
+            cornerRadius: 6
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: "rgba(186, 200, 188, 0.30)" },
+            ticks: { color: "#65716b", font: { family: "Inter", size: 10, weight: 700 } },
+            title: {
+              display: true,
+              text: config.xTitle,
+              color: "#42504a",
+              font: { family: "Inter", size: 10, weight: 800 }
+            }
+          },
+          y: {
+            type: config.yType || "linear",
+            min: config.yMin,
+            max: config.yMax,
+            grid: { color: "rgba(186, 200, 188, 0.42)" },
+            ticks: {
+              color: "#65716b",
+              font: { family: "Inter", size: 10, weight: 700 },
+              callback: (value) => {
+                if (isMse) {
+                  const exponent = Math.log10(Number(value));
+                  return Number.isInteger(exponent) ? `1e${exponent}` : "";
+                }
+                return `${Math.round(Number(value) * 100)}%`;
+              }
+            },
+            title: {
+              display: true,
+              text: config.yTitle,
+              color: "#42504a",
+              font: { family: "Inter", size: 10, weight: 800 }
+            }
+          }
+        }
+      };
+    }
+
+    function createHorizonScalingChart(canvas, config) {
+      return new Chart(canvas, {
+        type: "line",
+        plugins: [trainingHorizonPlugin, progressiveRevealPlugin, stdBandPlugin],
+        data: {
+          labels: config.labels,
+          datasets: config.series.map((entry) => {
+            const colors = methodColors[entry.color];
+            const isKm = entry.color === "km";
+            return {
+              label: entry.label,
+              data: entry.mean,
+              std: entry.std,
+              metric: config.metric,
+              borderColor: colors.stroke,
+              backgroundColor: colors.stroke,
+              bandColor: colors.band,
+              pointBackgroundColor: colors.stroke,
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: isKm ? 1.5 : 1,
+              pointRadius: isKm ? 3.2 : 2.6,
+              borderWidth: isKm ? 3 : 2,
+              tension: 0.25,
+              clip: false,
+              fill: false
+            };
+          })
+        },
+        options: horizonChartOptions(config)
+      });
+    }
+
+    function setRevealProgress(charts, progress) {
+      charts.forEach(({ chart }) => {
+        chart.options.plugins.progressiveReveal.progress = progress;
+        chart.update("none");
+      });
+    }
+
+    function easeInOutCubic(value) {
+      return value < 0.5
+        ? 4 * value * value * value
+        : 1 - Math.pow(-2 * value + 2, 3) / 2;
+    }
+
+    function playHorizonCharts(charts) {
+      const maxSteps = Math.max(...charts.map(({ chart }) => chart.data.labels.length));
+      if (prefersReduced) {
+        setRevealProgress(charts, 1);
+        return;
+      }
+
+      const segmentDuration = 430;
+      const totalDuration = Math.max(1, maxSteps - 1) * segmentDuration;
+      const start = window.performance.now();
+
+      function tick(now) {
+        const elapsed = Math.min(now - start, totalDuration);
+        const segment = elapsed / segmentDuration;
+        const segmentIndex = Math.floor(segment);
+        const segmentProgress = easeInOutCubic(segment - segmentIndex);
+        const progress = Math.min(1, (segmentIndex + segmentProgress) / Math.max(1, maxSteps - 1));
+        setRevealProgress(charts, progress);
+
+        if (elapsed < totalDuration) {
+          window.requestAnimationFrame(tick);
+        } else {
+          setRevealProgress(charts, 1);
+        }
+      }
+
+      setRevealProgress(charts, 0);
+      window.requestAnimationFrame(tick);
+    }
+
+    function renderHorizonCharts() {
+      return horizonChartConfigs
+        .map((config) => {
+          const canvas = document.getElementById(config.id);
+          if (!canvas || canvas.dataset.rendered) return null;
+          canvas.dataset.rendered = "true";
+          return { chart: createHorizonScalingChart(canvas, config), config };
+        })
+        .filter(Boolean);
+    }
+
+    function setupCharts() {
+      const group = document.querySelector('[data-chart-group="horizon-scaling"]');
+      if (!group || !window.Chart) return;
+
+      const renderGroup = () => {
+        if (group.dataset.rendered) return;
+        group.dataset.rendered = "true";
+        const charts = renderHorizonCharts();
+        if (charts.length) playHorizonCharts(charts);
+      };
+
+      if (!("IntersectionObserver" in window)) {
+        renderGroup();
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          renderGroup();
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.18 });
+
+      observer.observe(group);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setupReveal();
+      setupScrollSpy();
+      setupCharts();
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
 </html>
