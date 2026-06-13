@@ -531,6 +531,14 @@
       line-height: 1.1;
     }
 
+    .matrix-method-note {
+      color: var(--teal-dark);
+      font-family: Inter, sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
     .matrix-method small {
       display: block;
       color: var(--muted);
@@ -797,6 +805,10 @@
       gap: 10px;
     }
 
+    .failure-card-wide {
+      grid-column: 1 / -1;
+    }
+
     .failure-card {
       border-color: rgba(215, 25, 47, 0.32);
       background:
@@ -820,6 +832,77 @@
       inset: 0;
       border: 4px solid rgba(215, 25, 47, 0.78);
       pointer-events: none;
+    }
+
+    .failure-sync-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+      gap: 10px;
+      padding: 0 10px 10px;
+      align-items: stretch;
+    }
+
+    .failure-sync-panel {
+      min-width: 0;
+    }
+
+    .failure-sync-panel.is-detail {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .failure-sync-label {
+      margin: 0 0 6px;
+      color: #7f1d1d;
+      font-family: "Fira Code", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .failure-sync-frame {
+      aspect-ratio: 1;
+      border-radius: var(--radius);
+      border: 1px solid rgba(215, 25, 47, 0.32);
+    }
+
+    .failure-sync-frame.is-buffer {
+      aspect-ratio: 4 / 1;
+    }
+
+    .failure-sync-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 4px solid rgba(215, 25, 47, 0.78);
+      pointer-events: none;
+    }
+
+    .failure-inline-description {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      flex: 1;
+      justify-content: center;
+      margin-top: 10px;
+      padding: 2px 4px 0;
+      color: #4b5b54;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .failure-inline-description p {
+      margin: 0;
+    }
+
+    .failure-inline-description p + p {
+      margin-top: 8px;
+    }
+
+    .failure-task-name {
+      font-family: "Fira Code", monospace;
+      font-weight: 600;
     }
 
     .failure-description-slot {
@@ -1581,6 +1664,10 @@
       text-align: center;
     }
 
+    .footer p {
+      margin: 0;
+    }
+
     .reveal {
       opacity: 0;
       transform: translateY(22px);
@@ -1665,6 +1752,10 @@
 
       .failure-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .failure-sync-grid {
+        grid-template-columns: 1fr;
       }
 
       .mini-chart-holder {
@@ -1843,7 +1934,7 @@
                 <h2 id="hover-showcase-title">Same training horizon. Much longer tests.</h2>
               </div>
               <p>
-                At the training delay $\Delta t=15$, all policies can remember the color cue and choose the correct cube. As the cue-to-choice delay grows out of distribution (OOD), baseline memory methods collapse, whereas KM retains the selected cue in its mnemonic buffer and continues to act correctly.
+                At the training delay $\Delta t=15$, all policies can remember the previously shown color cue and choose the corresponding color. As the cue-to-choice delay grows out of distribution (OOD), baseline memory methods fail, whereas KM retains the observed cue in its mnemonic buffer and continues to act correctly.
               </p>
             </div>
 
@@ -1853,7 +1944,7 @@
 
             <div class="hover-matrix" aria-label="Hover rollout comparison matrix" data-hover-matrix>
               <div class="matrix-spacer" aria-hidden="true"></div>
-              <div class="matrix-method"><span class="matrix-method-main"><span class="method-dot"></span> KM</span><small>mnemonics</small></div>
+              <div class="matrix-method"><span class="matrix-method-main"><span class="method-dot"></span> KM <span class="matrix-method-note">(Ours)</span></span><small>mnemonics</small></div>
               <div class="matrix-method"><span class="matrix-method-main"><span class="method-dot ptp"></span> PTP</span><small>frame subsampling</small></div>
               <div class="matrix-method"><span class="matrix-method-main"><span class="method-dot elmur"></span> ELMUR</span><small>external cache</small></div>
               <div class="matrix-method"><span class="matrix-method-main">Success Rate</span><small>mean +/- std</small></div>
@@ -2200,8 +2291,8 @@
             <div class="horizon-shared-legend" aria-label="Synthetic and grid plot legend">
               <span><i style="background:#178f80"></i>KM (Ours)</span>
               <span><i style="background:#7759c7"></i>DLSTM</span>
-              <span><i style="background:#2b95bd"></i>LSTM (TBPTT)</span>
-              <span><i style="background:#2d6fd3"></i>LSTM (BPTT)</span>
+              <span><i style="background:#2b95bd"></i>LSTM-TBPTT</span>
+              <span><i style="background:#2d6fd3"></i>LSTM-BPTT</span>
               <span><i style="background:#e28a24"></i>DT</span>
               <span><i style="background:#b99a22"></i>TrXL</span>
               <span><i style="background:#c84f5e"></i>DMamba</span>
@@ -2452,6 +2543,34 @@
                 </div>
               </div>
             </article>
+
+            <article class="mikasa-card failure-card failure-card-wide">
+              <div class="mikasa-card-body">
+                <div class="mikasa-card-header"><h3>Memory Capacity Failure</h3><span>Chain Of Colors 3</span></div>
+                <div class="failure-sync-grid" data-synced-failure="chain-colors-3">
+                  <div class="failure-sync-panel">
+                    <div class="failure-sync-label">Policy Rollout</div>
+                    <div class="mikasa-video-frame failure-sync-frame">
+                      <video autoplay muted loop playsinline preload="metadata" data-sync-video data-sync-role="leader" aria-label="ChainOfColors3 merged KM failure rollout">
+                        <source src="videos/rollout/km/mikasa_robo/mikasa_robo_ChainOfColors3/failure_main.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="failure-sync-panel is-detail">
+                    <div class="failure-sync-label">Mnemonic buffer + Current observation</div>
+                    <div class="mikasa-video-frame failure-sync-frame is-buffer">
+                      <video autoplay muted loop playsinline preload="metadata" data-sync-video data-sync-role="follower" aria-label="ChainOfColors3 synced overhead and wrist mnemonic buffers">
+                        <source src="videos/rollout/km/mikasa_robo/mikasa_robo_ChainOfColors3/failure_buffer.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="failure-inline-description">
+                      <p>KM struggles with memory-capacity limitations. When multiple frames contain equivalent information, the proxy objective assigns similar reward to several buffer choices, making it difficult for the selector to preserve unique keyframes and retain information reliably.</p>
+                      <p>We observe this failure mode in the <span class="failure-task-name">Chain Of Colors 3</span> task, where the policy must remember three colors appearing over multiple timesteps. The policy fails to complete the task successfully because, although the selector retains some keyframes in the buffer, it does not consistently preserve the full mnemonic set of three colors.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2459,7 +2578,9 @@
     </main>
 
     <footer class="footer">
-      <div class="container"></div>
+      <div class="container">
+        <p>Copyright &copy; 2026 the authors. All rights reserved.</p>
+      </div>
     </footer>
   </div>
 
@@ -2967,7 +3088,7 @@
 
           if (!label) return;
 
-          ctx.fillStyle = isTraining ? "#35c46b" : "#d7192f";
+          ctx.fillStyle = isTraining ? "#1f9d58" : "#d7192f";
           ctx.fillText(label, bar.x, labelY);
         });
 
@@ -3220,7 +3341,7 @@
     }
 
     const mikasaMethodOrder = ["rate", "dt", "bc", "cql", "dp", "elmur", "km"];
-    const mikasaMethodLabels = { rate: "RATE", dt: "DT", bc: "BC", cql: "CQL", dp: "DP", elmur: "ELMUR", km: "KM" };
+    const mikasaMethodLabels = { rate: "RATE", dt: "DT", bc: "BC", cql: "CQL", dp: "DP", elmur: "ELMUR", km: "KM (Ours)" };
     const mikasaMethodColors = {
       rate: "#8b5cf6",
       dt: "#2f73b7",
@@ -3299,6 +3420,38 @@
       }
     };
 
+    const mikasaXAxisLabelPlugin = {
+      id: "mikasaXAxisLabels",
+      afterDraw(chart) {
+        const xScale = chart.scales.x;
+        if (!xScale) return;
+
+        const { ctx } = chart;
+        const labelTop = xScale.top + 6;
+        ctx.save();
+        ctx.fillStyle = "#50605a";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+
+        mikasaMethodOrder.forEach((method, index) => {
+          const x = xScale.getPixelForTick(index);
+
+          if (method === "km") {
+            ctx.font = "800 10px Inter, sans-serif";
+            ctx.fillText("KM", x, labelTop + 3);
+            ctx.font = "800 8px Inter, sans-serif";
+            ctx.fillText("(Ours)", x, labelTop + 14);
+            return;
+          }
+
+          ctx.font = "800 10px Inter, sans-serif";
+          ctx.fillText(mikasaMethodLabels[method], x, labelTop + 3);
+        });
+
+        ctx.restore();
+      }
+    };
+
     let mikasaCharts = [];
     let mikasaDeckIndex = 0;
 
@@ -3328,7 +3481,7 @@
     function createMikasaChart(canvas, taskKey) {
       return new Chart(canvas, {
         type: "bar",
-        plugins: [mikasaErrorBarPlugin],
+        plugins: [mikasaErrorBarPlugin, mikasaXAxisLabelPlugin],
         data: {
           labels: mikasaMethodOrder.map((method) => mikasaMethodLabels[method]),
           datasets: [{
@@ -3371,11 +3524,12 @@
             x: {
               grid: { display: false },
               ticks: {
-                color: "#50605a",
+                color: "rgba(80, 96, 90, 0)",
                 maxRotation: 0,
                 minRotation: 0,
                 autoSkip: false,
-                font: { family: "Inter", size: 8, weight: 800 }
+                callback: (value, index) => mikasaMethodOrder[index] === "km" ? ["KM", "(Ours)"] : mikasaMethodLabels[mikasaMethodOrder[index]],
+                font: { family: "Inter", size: 10, weight: 800 }
               }
             },
             y: {
@@ -3485,6 +3639,54 @@
       renderMikasaDeck(mikasaDeckIndex);
     }
 
+    function setupSyncedFailureVideos() {
+      document.querySelectorAll("[data-synced-failure]").forEach((group) => {
+        const videos = Array.from(group.querySelectorAll("[data-sync-video]"));
+        if (videos.length < 2) return;
+
+        const leader = videos.find((video) => video.dataset.syncRole === "leader") || videos[0];
+        const followers = videos.filter((video) => video !== leader);
+
+        const syncFollowers = () => {
+          if (leader.readyState < 1) return;
+
+          followers.forEach((video) => {
+            if (video.readyState < 1) return;
+            const drift = Math.abs(video.currentTime - leader.currentTime);
+            if (drift > 0.08) video.currentTime = leader.currentTime;
+          });
+        };
+
+        const playAll = () => {
+          videos.forEach((video) => {
+            video.muted = true;
+            const playPromise = video.play();
+            if (playPromise) playPromise.catch(() => {});
+          });
+        };
+
+        leader.addEventListener("play", playAll);
+        leader.addEventListener("seeked", syncFollowers);
+        videos.forEach((video) => {
+          video.addEventListener("loadedmetadata", () => {
+            syncFollowers();
+            playAll();
+          }, { once: true });
+        });
+
+        window.setInterval(() => {
+          if (leader.paused) return;
+          syncFollowers();
+          followers.forEach((video) => {
+            if (video.paused) {
+              const playPromise = video.play();
+              if (playPromise) playPromise.catch(() => {});
+            }
+          });
+        }, 250);
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       setupReveal();
       setupScrollSpy();
@@ -3492,6 +3694,7 @@
       setupChartPixelRefresh();
       setupHoverShowcase();
       setupMikasaShowcase();
+      setupSyncedFailureVideos();
       if (window.lucide) window.lucide.createIcons();
     });
   </script>
