@@ -33,7 +33,6 @@
       --orange-dark: #bd6514;
       --teal: #178f80;
       --teal-dark: #0f5f56;
-      --review-red: #d7192f;
       --shadow: 0 18px 55px rgba(24, 33, 29, 0.12);
       --radius: 8px;
       color-scheme: light;
@@ -198,42 +197,6 @@
       padding: 18px 0 38px;
     }
 
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.78);
-      padding: 6px 11px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .hero-kicker i {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--review-red);
-      box-shadow: 0 0 0 0 rgba(215, 25, 47, 0.34);
-      animation: reviewPulse 1s ease-out infinite;
-    }
-
-    @keyframes reviewPulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(215, 25, 47, 0.4);
-      }
-
-      70% {
-        box-shadow: 0 0 0 7px rgba(215, 25, 47, 0);
-      }
-
-      100% {
-        box-shadow: 0 0 0 0 rgba(215, 25, 47, 0);
-      }
-    }
-
     h1,
     h2,
     h3 {
@@ -260,7 +223,7 @@
       max-width: 840px;
       margin: 8px 0 0;
       color: #42504a;
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.45;
       overflow-wrap: break-word;
       word-break: normal;
@@ -271,12 +234,6 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 12px;
-    }
-
-    .hero-actions .hero-kicker {
-      min-height: 42px;
-      padding: 9px 14px;
-      background: var(--paper);
     }
 
     .btn {
@@ -1801,11 +1758,6 @@
         width: 100%;
       }
 
-      .hero-actions .hero-kicker {
-        justify-content: center;
-        width: 100%;
-      }
-
       .intro-showcase {
         padding: 44px 0 54px;
       }
@@ -1851,12 +1803,6 @@
       }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .hero-kicker i {
-        animation: none;
-        box-shadow: 0 0 0 4px rgba(215, 25, 47, 0.16);
-      }
-    }
   </style>
 </head>
 <body>
@@ -1889,9 +1835,8 @@
           </p>
           <div class="hero-actions">
             <!-- <a class="btn primary" href="mnemonic_bc.pdf" target="_blank" rel="noreferrer"><i data-lucide="file-text"></i> Paper</a> -->
-            <span class="btn primary" aria-disabled="true"><i data-lucide="file-text"></i> Paper coming soon</span>
-            <span class="btn disabled" aria-disabled="true"><i data-lucide="code-2"></i> Code coming soon</span>
-            <span class="hero-kicker"><i aria-hidden="true"></i> Under Review</span>
+            <span class="btn disabled" aria-disabled="true"><i data-lucide="file-text"></i> Paper (Coming soon)</span>
+            <span class="btn disabled" aria-disabled="true"><i data-lucide="code-2"></i> Code (Coming soon)</span>
             <!-- <a class="btn" href="#bibtex"><i data-lucide="quote"></i> BibTeX</a> -->
           </div>
 
