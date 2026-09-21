@@ -2198,7 +2198,7 @@
           <div class="section-header reveal">
             <div>
               <div class="eyebrow">Why Memory Fails</div>
-              <h2>The cue disappears. The action still depends on it.</h2>
+              <h2>Action depends on a few past observations.</h2>
             </div>
             <p class="section-copy">
               Memory-intensive imitation in partially observable environments often fails because the key observation is no longer visible when the action is needed. Rather than expanding context windows or repeatedly compressing hidden state, KM learns to preserve the few frames that disambiguate future behavior.
@@ -2403,7 +2403,7 @@
           <div class="section-header reveal">
             <div>
               <div class="eyebrow">Method</div>
-              <h2>Three training stages, one compact memory.</h2>
+              <h2>Discovering keyframes for mnemonics memory.</h2>
             </div>
             <p class="section-copy">
               KM first learns a proxy objective from randomly sampled past observations. A selector policy then populates a priority-queue buffer with keyframes that optimize this objective. Finally, the behavior cloning policy is trained on demonstrations augmented with the discovered keyframes, or mnemonics. The <strong>discovery</strong> process is <span class="text-green">fully self-supervised</span> and does not use any manual keyframe annotations or privileged information.
