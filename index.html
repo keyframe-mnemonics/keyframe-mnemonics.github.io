@@ -1086,6 +1086,16 @@
       font-size: 18px;
     }
 
+    .section-quote {
+      margin: 34px auto 0;
+      max-width: 720px;
+      text-align: center;
+      font-style: italic;
+      font-size: 19px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
     .callout-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1976,7 +1986,7 @@
             <span class="title-line">for Horizon-Invariant Behavior Cloning</span>
           </h1>
           <p class="subtitle">
-            Keyframe Mnemonics (KM) learns what a behavior cloning policy should remember: compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
+            Keyframe Mnemonics (KM) is a method that learns what a behavior cloning policy should remember - compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
           </p>
           <div class="hero-actions">
             <!-- <a class="btn primary" href="mnemonic_bc.pdf" target="_blank" rel="noreferrer"><i data-lucide="file-text"></i> Paper</a> -->
@@ -2198,7 +2208,7 @@
           <div class="section-header reveal">
             <div>
               <div class="eyebrow">Why Memory Fails</div>
-              <h2>Action depends on a few past observations.</h2>
+              <h2>Action often depends on a few past observations.</h2>
             </div>
             <p class="section-copy">
               Memory-intensive imitation in partially observable environments often fails because the key observation is no longer visible when the action is needed. Rather than expanding context windows or repeatedly compressing hidden state, KM learns to preserve the few frames that disambiguate future behavior.
@@ -2250,6 +2260,8 @@
               </div>
             </div>
           </div>
+
+          <p class="section-quote reveal"><strong>Mnemonics</strong> is something that assists with memory.</p>
         </div>
       </section>
 
