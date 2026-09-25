@@ -98,6 +98,22 @@
       padding: 8px 22px;
     }
 
+    .topbar-venue {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .topbar-venue .confetti {
+      font-size: 18px;
+      line-height: 1;
+    }
+
     .brand {
       display: inline-flex;
       align-items: center;
@@ -227,6 +243,36 @@
       line-height: 1.45;
       overflow-wrap: break-word;
       word-break: normal;
+    }
+
+    .hero-meta {
+      margin: 14px 0 16px;
+      text-align: center;
+    }
+
+    .authors {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .authors a {
+      transition: color 160ms ease;
+    }
+
+    .authors a:hover {
+      color: var(--teal);
+    }
+
+    .affiliation {
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .affiliation-logo {
+      height: 36px;
+      width: auto;
     }
 
     .hero-actions {
@@ -1802,6 +1848,10 @@
         padding-top: 24px;
       }
 
+      .affiliation-logo {
+        height: 30px;
+      }
+
       h1 {
         font-size: 40px;
       }
@@ -1888,6 +1938,10 @@
         padding-inline: 14px;
       }
 
+      .topbar-venue .confetti {
+        display: none;
+      }
+
       h1 {
         font-size: 34px;
       }
@@ -1968,6 +2022,10 @@
           <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
           <span>Keyframe Mnemonics</span>
         </a>
+        <a class="topbar-venue" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noreferrer">
+          <span class="confetti" aria-hidden="true">🎉</span>
+          NeurIPS 2026
+        </a>
       </div>
     </header>
 
@@ -1985,6 +2043,16 @@
             <span class="title-line">Self-Supervised Keyframe Discovery</span>
             <span class="title-line">for Horizon-Invariant Behavior Cloning</span>
           </h1>
+          <div class="hero-meta">
+            <p class="authors">
+              <a href="https://prabinrath.github.io/" target="_blank" rel="noreferrer">Prabin Kumar Rath</a>,
+              <a href="https://omkarpatil18.github.io/" target="_blank" rel="noreferrer">Omkar Patil</a>,
+              <a href="https://nakulgopalan.github.io/" target="_blank" rel="noreferrer">Nakul Gopalan</a>
+            </p>
+            <a class="affiliation" href="https://www.asu.edu/" target="_blank" rel="noreferrer" aria-label="Arizona State University">
+              <img class="affiliation-logo" src="assets/asu_logo.png" alt="Arizona State University" width="681" height="124">
+            </a>
+          </div>
           <p class="subtitle">
             Keyframe Mnemonics (KM) is a method that learns what a behavior cloning policy should remember - compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
           </p>
