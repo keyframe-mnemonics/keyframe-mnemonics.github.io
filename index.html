@@ -1805,6 +1805,39 @@
       pointer-events: none;
     }
 
+    .bibtex-block {
+      position: relative;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .bibtex-block pre {
+      margin: 0;
+      padding: 20px 22px;
+      overflow-x: auto;
+      font-family: "Fira Code", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    @media (max-width: 560px) {
+      .bibtex-block pre {
+        padding-top: 54px;
+      }
+    }
+
+    .bibtex-copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      min-height: 34px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
     .footer {
       padding: 36px 0 54px;
       color: var(--muted);
@@ -2057,10 +2090,9 @@
             Keyframe Mnemonics (KM) is a method that learns what a behavior cloning policy should remember - compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
           </p>
           <div class="hero-actions">
-            <!-- <a class="btn primary" href="mnemonic_bc.pdf" target="_blank" rel="noreferrer"><i data-lucide="file-text"></i> Paper</a> -->
-            <span class="btn disabled" aria-disabled="true"><i data-lucide="file-text"></i> Paper (Coming soon)</span>
-            <span class="btn disabled" aria-disabled="true"><i data-lucide="code-2"></i> Code (Coming soon)</span>
-            <!-- <a class="btn" href="#bibtex"><i data-lucide="quote"></i> BibTeX</a> -->
+            <a class="btn primary" href="paper.pdf" target="_blank" rel="noreferrer"><i data-lucide="file-text"></i> Paper</a>
+            <a class="btn" href="https://github.com/prabinrath/keyframe-mnemonics" target="_blank" rel="noreferrer"><i data-lucide="code-2"></i> Code</a>
+            <a class="btn" href="#bibtex"><i data-lucide="quote"></i> BibTeX</a>
           </div>
 
           <div class="hero-media">
@@ -2837,16 +2869,55 @@
         </div>
       </section>
 
+      <section class="section" id="bibtex">
+        <div class="container">
+          <div class="section-header reveal">
+            <div>
+              <div class="eyebrow">Citation</div>
+              <h2>BibTeX</h2>
+            </div>
+          </div>
+
+          <div class="bibtex-block reveal">
+            <button class="btn bibtex-copy" type="button" data-copy-target="bibtex-code"><i data-lucide="copy"></i> Copy</button>
+            <pre><code id="bibtex-code">@inproceedings{rath2026keyframe,
+  title     = {Self-Supervised Keyframe Discovery for Horizon-Invariant Behavior Cloning},
+  author    = {Rath, Prabin Kumar and Patil, Omkar and Gopalan, Nakul},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2026}
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <footer class="footer">
       <div class="container">
-        <p>Copyright &copy; 2026 the authors. All rights reserved.</p>
+        <p>Copyright &copy; 2026 the authors. Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noreferrer">CC BY-NC-SA 4.0</a>.</p>
       </div>
     </footer>
   </div>
 
   <script>
+    function setupBibtexCopy() {
+      document.querySelectorAll("[data-copy-target]").forEach((button) => {
+        const label = button.innerHTML;
+        button.addEventListener("click", async () => {
+          const text = document.getElementById(button.dataset.copyTarget).textContent;
+          try {
+            await navigator.clipboard.writeText(text);
+            button.textContent = "Copied";
+          } catch (err) {
+            button.textContent = "Copy failed";
+          }
+          setTimeout(() => {
+            button.innerHTML = label;
+          }, 1600);
+        });
+      });
+    }
+
     function setupReveal() {
       const items = document.querySelectorAll(".reveal");
       if (!("IntersectionObserver" in window)) {
@@ -3985,6 +4056,7 @@
       setupMikasaShowcase();
       setupSyncedFailureVideos();
       if (window.lucide) window.lucide.createIcons();
+      setupBibtexCopy();
     });
   </script>
 </body>
