@@ -99,22 +99,6 @@
       padding: 8px 22px;
     }
 
-    .topbar-venue {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-      font-family: "Space Grotesk", Inter, sans-serif;
-      font-size: 17px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .topbar-venue .confetti {
-      font-size: 18px;
-      line-height: 1;
-    }
-
     .brand {
       display: inline-flex;
       align-items: center;
@@ -263,7 +247,7 @@
     }
 
     .authors a:hover {
-      color: var(--teal);
+      color: #0b3d91;
     }
 
     .affiliation {
@@ -274,6 +258,32 @@
     .affiliation-logo {
       height: 36px;
       width: auto;
+    }
+
+    .venue-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .venue-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 5px 12px;
+      background: #ececec;
+      color: #444444;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .venue-badge:hover {
+      color: #000000;
     }
 
     .hero-actions {
@@ -1977,10 +1987,6 @@
         padding-inline: 14px;
       }
 
-      .topbar-venue .confetti {
-        display: none;
-      }
-
       h1 {
         font-size: 34px;
       }
@@ -2061,10 +2067,6 @@
           <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
           <span>Keyframe Mnemonics</span>
         </a>
-        <a class="topbar-venue" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noreferrer">
-          <span class="confetti" aria-hidden="true">🎉</span>
-          NeurIPS 2026
-        </a>
       </div>
     </header>
 
@@ -2091,6 +2093,10 @@
             <a class="affiliation" href="https://www.asu.edu/" target="_blank" rel="noreferrer" aria-label="Arizona State University">
               <img class="affiliation-logo" src="assets/asu_logo.png" alt="Arizona State University" width="681" height="124">
             </a>
+            <div class="venue-badges">
+              <a class="venue-badge" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noreferrer"><span aria-hidden="true">🎉</span>NeurIPS 2026</a>
+              <a class="venue-badge" href="https://corl2026-memory.github.io/index.html" target="_blank" rel="noreferrer"><span aria-hidden="true">🎉</span>CoRL 2026 RoboMem</a>
+            </div>
           </div>
           <p class="subtitle">
           We present <strong>Keyframe Mnemonics (KM)</strong>, a method to learn what a behavior cloning policy should remember - compact, decision-relevant observations <strong>discovered</strong> from demonstrations and retained across long horizons.
