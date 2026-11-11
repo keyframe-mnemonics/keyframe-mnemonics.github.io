@@ -280,6 +280,7 @@
       font-family: Arial, sans-serif;
       font-size: 14px;
       font-weight: 700;
+      box-shadow: 0 3px 10px rgba(24, 33, 29, 0.18);
     }
 
     .venue-badge:hover {
@@ -745,6 +746,358 @@
       font-weight: 700;
       letter-spacing: -0.01em;
       line-height: 1.3;
+    }
+
+    /* ---------- horizon board: human demos vs staged robot rollouts ---------- */
+    .hz-board {
+      display: grid;
+      grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+      gap: 18px 22px;
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 18px 18px 20px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 250, 247, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .hz-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .hz-col-head {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 2px 2px 0;
+    }
+
+    .hz-col-title {
+      color: var(--ink);
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .hz-col-sub {
+      color: var(--muted);
+      font-family: Inter, sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hz-nocase {
+      text-transform: none;
+    }
+
+    .hz-human-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .hz-human-clip {
+      margin: 0;
+    }
+
+    .hz-human-frame,
+    .hz-stage-frame {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: #101612;
+    }
+
+    .hz-human-frame {
+      aspect-ratio: 16 / 9;
+    }
+
+    .hz-stage-frame {
+      aspect-ratio: 608 / 880;
+    }
+
+    .hz-human-frame video,
+    .hz-stage-frame video {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .hz-human-clip figcaption {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+      color: var(--muted);
+      font-family: Inter, sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hz-cue {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    .hz-cue.red {
+      background: #e0533d;
+    }
+
+    .hz-cue.green {
+      background: #9cc93a;
+    }
+
+    .hz-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 22, 18, 0.78);
+      color: #fff;
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .hz-human-frame .hz-chip-speed,
+    .hz-stage-frame .hz-chip-speed {
+      position: absolute;
+      z-index: 2;
+      top: 7px;
+      left: 7px;
+    }
+
+    .hz-stage-frame .hz-chip-rate {
+      position: absolute;
+      z-index: 2;
+      top: 7px;
+      right: 7px;
+    }
+
+    .hz-stages {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .hz-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      transition: opacity 0.5s ease, filter 0.5s ease;
+    }
+
+    .hz-stage-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      min-height: 26px;
+    }
+
+    .hz-stage-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: auto;
+      color: var(--ink);
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .hz-stage-name small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .hz-stage .hz-chip-speed {
+      min-width: 7ch;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    .hz-stage.is-pending {
+      opacity: 0.45;
+    }
+
+    .hz-stage.is-active .hz-stage-frame {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 2px rgba(24, 33, 29, 0.18);
+    }
+
+    .hz-stage.is-ours.is-active .hz-stage-frame,
+    .hz-stage.is-success .hz-stage-frame {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 2px rgba(23, 143, 128, 0.3);
+    }
+
+    .hz-stage.is-failed {
+      opacity: 0.55;
+      filter: grayscale(1);
+    }
+
+    .hz-badge {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      color: #fff;
+      font-family: Inter, sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    .hz-stage.is-failed .hz-badge,
+    .hz-stage.is-success .hz-badge {
+      display: block;
+      top: auto;
+      left: auto;
+      right: 7px;
+      bottom: 10px;
+      transform: none;
+    }
+
+    .hz-stage.is-failed .hz-badge {
+      background: rgba(16, 22, 18, 0.85);
+    }
+
+    .hz-stage.is-failed .hz-badge::before {
+      content: "\2715  Failed";
+    }
+
+    .hz-stage.is-success .hz-badge {
+      background: var(--teal);
+    }
+
+    .hz-stage.is-success .hz-badge::before {
+      content: "\2713  Success";
+    }
+
+    .hz-tile-delay {
+      display: grid;
+      gap: 4px;
+      margin-top: auto;  /* pin every delay bar to the bottom of its column */
+    }
+
+    .hz-stages {
+      flex: 1;
+    }
+
+    .hz-stage .hz-tile-delay {
+      padding-top: 4px;
+    }
+
+    .hz-tile-delay-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-family: Inter, sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .hz-delay-value {
+      color: var(--ink);
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hz-track {
+      position: relative;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--soft);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .hz-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .hz-fill-human {
+      background: var(--orange);
+    }
+
+    .hz-fill-dp {
+      background: #b06f4c;
+    }
+
+    .hz-fill-ptp {
+      background: #68736e;
+    }
+
+    .hz-fill-km {
+      background: var(--teal);
+    }
+
+    .hz-stage.is-failed .hz-tile-delay {
+      opacity: 0.6;
+    }
+
+    .hz-episode {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: Inter, sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 760px) {
+      .hz-board {
+        grid-template-columns: 1fr;
+        padding: 14px 12px 16px;
+      }
+
+      .hz-human-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hz-chip {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+
+      .hz-stage-frame .hz-chip-rate {
+        top: 30px;
+        right: auto;
+        left: 7px;
+      }
+
     }
 
     /* heading now lives inside .lede, so it needs the section-header's spacing */
@@ -2094,8 +2447,8 @@
               <img class="affiliation-logo" src="assets/asu_logo.png" alt="Arizona State University" width="681" height="124">
             </a>
             <div class="venue-badges">
-              <a class="venue-badge" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noreferrer"><span aria-hidden="true">🎉</span>NeurIPS 2026</a>
-              <a class="venue-badge" href="https://corl2026-memory.github.io/index.html" target="_blank" rel="noreferrer"><span aria-hidden="true">🎉</span>CoRL 2026 RoboMem</a>
+              <a class="venue-badge" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noreferrer">NeurIPS 2026 Main Track</a>
+              <a class="venue-badge" href="https://corl2026-memory.github.io/index.html" target="_blank" rel="noreferrer">CoRL 2026 RoboMem Workshop</a>
             </div>
           </div>
           <p class="subtitle">
@@ -2155,49 +2508,76 @@
               The robot is shown a red or green cube for 3&ndash;5s. The cue is removed, and after a delay two cubes appear 30 cm apart. The robot must reach for the color it was shown. Demonstration data had a cue-to-choice delay of ~5s, but the test delays are 20x longer.
             </p>
 
-            <div class="rr-matrix" aria-label="Real robot rollout comparison matrix">
-              <div class="rr-spacer" aria-hidden="true"></div>
-              <div class="rr-method"><span class="matrix-method-main"><span class="method-dot"></span> KM <span class="matrix-method-note">(Ours)</span></span><small>mnemonics</small></div>
-              <div class="rr-method"><span class="matrix-method-main"><span class="method-dot ptp"></span> PTP</span><small>frame subsampling</small></div>
-              <div class="rr-method"><span class="matrix-method-main"><span class="method-dot dp"></span> DP</span><small>diffusion policy</small></div>
+            <div class="hz-board" id="hz-board" aria-label="Expert demonstrations at a short delay next to robot rollouts at a 20 times longer delay">
+              <div class="hz-col hz-human">
+                <div class="hz-col-head">
+                  <span class="hz-col-title">Expert demonstrations</span>
+                  <span class="hz-col-sub">training data &middot; <span class="hz-nocase">&Delta;t &asymp; 3&ndash;5s</span></span>
+                </div>
+                <div class="hz-human-grid">
+                  <figure class="hz-human-clip">
+                    <div class="hz-human-frame">
+                      <video id="hz-human-red" data-phases="[[0,3.8,13.0],[18.886,23.886,32.686],[38.906,44.706,54.306]]" autoplay muted loop playsinline preload="metadata" poster="videos/horizon/human_red.jpg" aria-label="Expert demonstrations with a red cube" src="videos/horizon/human_red.mp4"></video>
+                      <span class="hz-chip hz-chip-speed">4&times;</span>
+                    </div>
+                    <figcaption><i class="hz-cue red"></i>Red cube</figcaption>
+                  </figure>
+                  <figure class="hz-human-clip">
+                    <div class="hz-human-frame">
+                      <video id="hz-human-green" data-phases="[[0,4.8,13.0],[20.654,25.054,33.054],[40.941,45.141,53.241]]" autoplay muted loop playsinline preload="metadata" poster="videos/horizon/human_green.jpg" aria-label="Expert demonstrations with a green cube" src="videos/horizon/human_green.mp4"></video>
+                      <span class="hz-chip hz-chip-speed">4&times;</span>
+                    </div>
+                    <figcaption><i class="hz-cue green"></i>Green cube</figcaption>
+                  </figure>
+                </div>
+                <div class="hz-tile-delay" aria-hidden="true">
+                  <div class="hz-track"><div class="hz-fill hz-fill-human" id="hz-fill-human"></div></div>
+                  <div class="hz-tile-delay-meta"><span>&Delta;t</span><span class="hz-delay-value" id="hz-val-human">0s</span></div>
+                </div>
+              </div>
 
-              <div class="rr-dt"><span class="dt-value">&Delta;t=3&ndash;5s</span><span class="dt-context">train</span></div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/km_dt5s_success_x4.jpg" aria-label="KM real robot rollouts at a 3 to 5 second delay" src="videos/real_world/km_dt5s_success_x4.mp4"></video>
-                  <span class="rr-outcome">20 / 20</span>
+              <div class="hz-col hz-robot">
+                <div class="hz-col-head">
+                  <span class="hz-col-title">Robot rollouts <span class="hz-episode" id="hz-episode"><i class="hz-cue red"></i>Red cube</span></span>
+                  <span class="hz-col-sub">test &middot; <span class="hz-nocase">&Delta;t = 100&ndash;120s</span> &middot; 20&times; longer</span>
                 </div>
-              </div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/ptp_dt5s_success_x4.jpg" aria-label="PTP real robot rollouts at a 3 to 5 second delay" src="videos/real_world/ptp_dt5s_success_x4.mp4"></video>
-                  <span class="rr-outcome">16 / 20</span>
-                </div>
-              </div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/dp_dt5s_mixed_x4.jpg" aria-label="DP real robot rollouts at a 3 to 5 second delay" src="videos/real_world/dp_dt5s_mixed_x4.mp4"></video>
-                  <span class="rr-outcome">9 / 20</span>
-                </div>
-              </div>
-
-              <div class="rr-dt"><span class="dt-value">&Delta;t=100&ndash;120s</span><span class="dt-context">OOD</span></div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/km_dt2m_success_x4.jpg" aria-label="KM real robot rollouts at a 100 to 120 second delay" src="videos/real_world/km_dt2m_success_x4.mp4"></video>
-                  <span class="rr-outcome">16 / 20</span>
-                </div>
-              </div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/ptp_dt2m_failure_x4.jpg" aria-label="PTP real robot rollouts at a 100 to 120 second delay" src="videos/real_world/ptp_dt2m_failure_x4.mp4"></video>
-                  <span class="rr-outcome">0 / 20</span>
-                </div>
-              </div>
-              <div class="rr-cell">
-                <div class="rr-frame">
-                  <video autoplay muted loop playsinline preload="none" poster="videos/real_world/posters/dp_dt2m_mixed_x4.jpg" aria-label="DP real robot rollouts at a 100 to 120 second delay" src="videos/real_world/dp_dt2m_mixed_x4.mp4"></video>
-                  <span class="rr-outcome">2 / 20</span>
+                <div class="hz-stages">
+                  <div class="hz-stage is-pending" data-stage="dp" data-episodes='[{"src": "dp_red", "wait": 2.5, "act": 5.92, "delay": 82, "outcome": "fail", "move": 6.6}, {"src": "dp_green", "wait": 2.5, "act": 3.17, "delay": 16, "outcome": "fail", "move": 3.0}]'>
+                    <div class="hz-stage-head"><span class="hz-stage-name"><span class="method-dot dp"></span> DP</span></div>
+                    <div class="hz-stage-frame">
+                      <span class="hz-chip hz-chip-speed">4&times; &gt;&gt;</span><span class="hz-chip hz-chip-rate">2 / 20</span>
+                      <video muted playsinline preload="auto" poster="videos/horizon/dp_red.jpg" aria-label="DP rollout at a 100 to 120 second delay" src="videos/horizon/dp_red.mp4"></video>
+                      <span class="hz-badge"></span>
+                    </div>
+                    <div class="hz-tile-delay" aria-hidden="true">
+                      <div class="hz-track"><div class="hz-fill hz-fill-dp"></div></div>
+                      <div class="hz-tile-delay-meta"><span>&Delta;t</span><span class="hz-delay-value">0s</span></div>
+                    </div>
+                  </div>
+                  <div class="hz-stage is-pending" data-stage="ptp" data-episodes='[{"src": "ptp_red", "wait": 3.3, "act": 8.22, "delay": 118, "outcome": "fail", "move": 5.5}, {"src": "ptp_green", "wait": 2.73, "act": 7.68, "delay": 119, "outcome": "fail", "move": 4.18}]'>
+                    <div class="hz-stage-head"><span class="hz-stage-name"><span class="method-dot ptp"></span> PTP</span></div>
+                    <div class="hz-stage-frame">
+                      <span class="hz-chip hz-chip-speed">4&times; &gt;&gt;</span><span class="hz-chip hz-chip-rate">0 / 20</span>
+                      <video muted playsinline preload="auto" poster="videos/horizon/ptp_red.jpg" aria-label="PTP rollout at a 100 to 120 second delay" src="videos/horizon/ptp_red.mp4"></video>
+                      <span class="hz-badge"></span>
+                    </div>
+                    <div class="hz-tile-delay" aria-hidden="true">
+                      <div class="hz-track"><div class="hz-fill hz-fill-ptp"></div></div>
+                      <div class="hz-tile-delay-meta"><span>&Delta;t</span><span class="hz-delay-value">0s</span></div>
+                    </div>
+                  </div>
+                  <div class="hz-stage is-pending is-ours" data-stage="km" data-episodes='[{"src": "km_red", "wait": 3.27, "act": 7.94, "delay": 112, "outcome": "success", "move": 10.6}, {"src": "km_green", "wait": 1.5, "act": 6.33, "delay": 116, "outcome": "success", "move": 9.2}]'>
+                    <div class="hz-stage-head"><span class="hz-stage-name"><span class="method-dot"></span> KM <small>(Ours)</small></span></div>
+                    <div class="hz-stage-frame">
+                      <span class="hz-chip hz-chip-speed">4&times; &gt;&gt;</span><span class="hz-chip hz-chip-rate">16 / 20</span>
+                      <video muted playsinline preload="auto" poster="videos/horizon/km_red.jpg" aria-label="KM rollout at a 100 to 120 second delay" src="videos/horizon/km_red.mp4"></video>
+                      <span class="hz-badge"></span>
+                    </div>
+                    <div class="hz-tile-delay" aria-hidden="true">
+                      <div class="hz-track"><div class="hz-fill hz-fill-km"></div></div>
+                      <div class="hz-tile-delay-meta"><span>&Delta;t</span><span class="hz-delay-value">0s</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4051,7 +4431,7 @@
     // The real-robot clips are long (27-159s) and heavy. Only let the ones on
     // screen decode; pause the rest so six of them are not running at once.
     function setupRealRobotVideos() {
-      const videos = [...document.querySelectorAll("#real-robot video, #distractors video")];
+      const videos = [...document.querySelectorAll("#real-robot .hz-human video, #distractors video")];
       if (!videos.length) return;
 
       if (!("IntersectionObserver" in window)) {
@@ -4074,7 +4454,149 @@
       videos.forEach((video) => observer.observe(video));
     }
 
+    function setupHorizonBoard() {
+      const board = document.getElementById("hz-board");
+      if (!board) return;
+      const MAX_DELAY = 140;
+      const HOLD_MS = 2500;
+      const stages = [...board.querySelectorAll(".hz-stage")].map((el) => ({
+        el,
+        video: el.querySelector("video"),
+        speed: el.querySelector(".hz-chip-speed"),
+        fill: el.querySelector(".hz-fill"),
+        value: el.querySelector(".hz-delay-value"),
+        episodes: JSON.parse(el.dataset.episodes),
+        done: false,
+      }));
+      const colors = ["red", "green"];  // episode i uses this cue color
+      const humans = {
+        red: document.getElementById("hz-human-red"),
+        green: document.getElementById("hz-human-green"),
+      };
+      const humanPhases = {};
+      Object.entries(humans).forEach(([c, v]) => {
+        try { humanPhases[c] = JSON.parse(v.dataset.phases || "[]"); } catch (e) { humanPhases[c] = []; }
+      });
+      const HUMAN_RATE = 4;  // same speed as the robot clips
+      Object.values(humans).forEach((v) => {
+        if (!v) return;
+        v.defaultPlaybackRate = HUMAN_RATE;
+        v.playbackRate = HUMAN_RATE;
+        v.addEventListener("loadedmetadata", () => { v.playbackRate = HUMAN_RATE; });
+        v.addEventListener("play", () => { v.playbackRate = HUMAN_RATE; });
+      });
+      const fillHuman = document.getElementById("hz-fill-human");
+      const valHuman = document.getElementById("hz-val-human");
+      const episodeChip = document.getElementById("hz-episode");
+      const nEpisodes = Math.min(...stages.map((s) => s.episodes.length));
+      let episode = -1;
+      let visible = false;
+      let holdTimer = null;
+
+      const setBar = (fill, val, seconds) => {
+        fill.style.width = `${Math.min(seconds / MAX_DELAY, 1) * 100}%`;
+        val.textContent = `${Math.round(seconds)}s`;
+      };
+
+      // real-time delay at video time t; stops when the robot starts moving (ep.move)
+      const SRC_SPEED = 4;  // cue and choice play at 4x real time
+      const delayAt = (ep, t) => {
+        t = Math.min(t, ep.move);
+        if (t <= ep.wait) return 0;
+        if (t < ep.act) return ((t - ep.wait) / (ep.act - ep.wait)) * ep.delay;
+        return ep.delay + (t - ep.act) * SRC_SPEED;
+      };
+
+      // phases: [clipStart, cueRemoved, robotMoves]; the bar runs from cue removal until the
+      // robot starts moving, then holds until the next demo begins
+      const humanDelay = (phases, t) => {
+        for (let k = phases.length - 1; k >= 0; k--) {
+          const [start, cueEnd, move] = phases[k];
+          if (t < start) continue;
+          if (t < cueEnd) return 0;
+          return Math.min(t, move) - cueEnd;
+        }
+        return 0;
+      };
+
+      const playIfVisible = (v) => { if (visible) v.play().catch(() => {}); };
+
+      const startEpisode = (i) => {
+        clearTimeout(holdTimer);
+        episode = i;
+        const color = colors[i % colors.length];
+        episodeChip.innerHTML = `<i class="hz-cue ${color}"></i>${color === "red" ? "Red" : "Green"} cube`;
+        stages.forEach((s) => {
+          const ep = s.episodes[i];
+          s.done = false;
+          s.el.classList.remove("is-pending", "is-failed", "is-success");
+          s.el.classList.add("is-active");
+          const src = `videos/horizon/${ep.src}.mp4`;
+          if (!s.video.src.endsWith(src)) {
+            s.video.poster = `videos/horizon/${ep.src}.jpg`;
+            s.video.src = src;
+          }
+          s.video.currentTime = 0;
+          setBar(s.fill, s.value, 0);
+          playIfVisible(s.video);
+        });
+      };
+
+      stages.forEach((s) => {
+        s.video.addEventListener("ended", () => {
+          const ep = s.episodes[episode];
+          s.done = true;
+          s.el.classList.remove("is-active");
+          s.el.classList.add(ep.outcome === "success" ? "is-success" : "is-failed");
+          if (stages.every((x) => x.done)) {
+            holdTimer = setTimeout(() => startEpisode((episode + 1) % nEpisodes), HOLD_MS);
+          }
+        });
+      });
+
+      const tick = () => {
+        if (episode >= 0) {
+          stages.forEach((s) => {
+            const ep = s.episodes[episode];
+            const t = s.video.currentTime;
+            setBar(s.fill, s.value, delayAt(ep, s.done ? ep.move : t));
+            const ff = !s.done && t > ep.wait && t < ep.act;
+            const target = ff ? 24 : 4;
+            const now = performance.now();
+            if (s.shown === undefined) { s.shown = 4; s.stepAt = 0; }
+            if (s.shown !== target && now - s.stepAt > 45) {
+              s.shown += s.shown < target ? 2 : -2;  // count through the numbers, ~0.5s
+              s.stepAt = now;
+            }
+            const label = `${s.shown}\u00d7 >>`;
+            if (s.speed.textContent !== label) s.speed.textContent = label;
+          });
+          const color = colors[episode % colors.length];
+          const hv = humans[color];
+          if (hv) setBar(fillHuman, valHuman, humanDelay(humanPhases[color], hv.currentTime));
+        }
+        requestAnimationFrame(tick);
+      };
+
+      const onVisible = (isVisible) => {
+        visible = isVisible;
+        if (visible && episode < 0) { startEpisode(0); return; }
+        stages.forEach((s) => {
+          if (s.done) return;
+          if (visible) playIfVisible(s.video); else s.video.pause();
+        });
+      };
+
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver((entries) => onVisible(entries[0].isIntersecting), { threshold: 0.25 }).observe(board);
+      } else {
+        onVisible(true);
+      }
+      requestAnimationFrame(tick);
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
+      setupHorizonBoard();
       setupRealRobotVideos();
       setupReveal();
       setupScrollSpy();
